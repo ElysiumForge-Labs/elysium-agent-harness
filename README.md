@@ -1,33 +1,63 @@
 # elysium-agent-harness
 
-Next-generation agent harness for ElysiumForge Labs: a **minimal, auditable core** (Pi-inspired) with **hierarchical orchestration (depth ≤ 2)** and **streaming quality gates** as first-class, opt-in extensions.
+Minimal, auditable agent harness for ElysiumForge Labs research — a Pi-inspired core with hierarchical orchestration (depth ≤ 2) and streaming quality gates as first-class, opt-in extensions.
 
 Part of [ElysiumForge Labs](https://github.com/ElysiumForge-Labs).
 
-> **Independent research repository.** Not affiliated with, endorsed by, or sponsored by Kinetiq or Hyperliquid. Run agents only against throwaway credentials and sandboxed roots.
+> **Independent research repository.** Not affiliated with, endorsed by, or sponsored by Kinetiq or Hyperliquid. Run agents only against throwaway credentials and sandboxed workspace roots.
 
-## Repository layout
+## Features
 
-| Path | Role |
-| --- | --- |
-| Root (`packages/`, `bin/`, `skills/`) | TypeScript / pnpm harness — this README |
-| `agent-python/` | Legacy Python v0.16 web harness (FastAPI + Alpine SPA), kept for reference |
-| `skills/` | Shipped skills indexed into the CLI (`living-dashboard`, `elysium-swarmloop`, `elysium-bench-operations`) |
+- Agent loop with a small tool surface (`read` / `write` / `edit` / `bash`)
+- JSONL session tree and typed event bus
+- Depth-2 orchestrator for controlled sub-agent work
+- Streaming quality gates as an opt-in extension
+- Providers: deterministic mock and OpenAI-compatible HTTP
+- CLI: `elysium demo`, `run`, and `orchestrate`
+- Shipped skills: `living-dashboard`, `elysium-swarmloop`, `elysium-bench-operations`
 
 ## Packages
 
-| Package | Kind | What it gives you |
+| Package | Kind | Role |
 | --- | --- | --- |
-| `@elysium/core` | core | Agent loop, tool system (`read`/`write`/`edit`/`bash`), JSONL session tree, depth-2 orchestrator, quality gate, providers (mock + OpenAI-compatible), typed event bus |
+| `@elysium/core` | core | Agent loop, tools, session tree, orchestrator, quality gate, providers, event bus |
 | `@elysium/meta-layer` | extension | Software Factory meta-layer: telemetry, improvement hypotheses, controlled application |
-| `@elysium/extension-tools` | extension | `grep`, `glob`, `http_fetch` tools |
+| `@elysium/extension-tools` | extension | `grep`, `glob`, `http_fetch` |
 | `@elysium/tui` | extension | Readline REPL with live streaming |
-| `@elysium/benchmarks` | extension | Benchmark / eval suite |
-| `@elysium/cli` | extension | `elysium demo / run / orchestrate` |
+| `@elysium/benchmarks` | extension | Benchmark and eval suite |
+| `@elysium/cli` | extension | CLI entry points |
+
+## Layout
+
+| Path | Role |
+| --- | --- |
+| `packages/` | TypeScript packages (pnpm workspace) |
+| `bin/` | CLI entry scripts |
+| `skills/` | Shipped skills indexed into the CLI |
+| `examples/` | Offline demo runner |
+| `agent-python/` | Legacy Python v0.16 web harness (FastAPI + Alpine SPA), kept for reference |
+| `docs/` | Design notes |
+
+## Stack
+
+| Item | Value |
+| --- | --- |
+| Language | TypeScript (Node ≥ 22) |
+| Package manager | pnpm ≥ 9 |
+| Tests | Vitest |
+| Lint / format | Biome |
+| Legacy harness | Python (FastAPI) under `agent-python/` |
 
 ## Getting started
 
-Requires Node ≥ 22 and pnpm ≥ 9.
+### Prerequisites
+
+| Program | Version |
+| --- | --- |
+| Node.js | ≥ 22 |
+| pnpm | ≥ 9 |
+
+### Install, build, test
 
 ```bash
 pnpm install
@@ -36,9 +66,21 @@ pnpm test           # unit + integration
 pnpm demo           # offline end-to-end run on the deterministic mock provider
 ```
 
-Useful env vars: `ELYSIUM_BASH_TIMEOUT_MS`, `ELYSIUM_SPAWN_TIMEOUT_MS`, `ELYSIUM_RAIN_MS=0`, `ELYSIUM_SKILLS_DIR`.
+Useful environment variables: `ELYSIUM_BASH_TIMEOUT_MS`, `ELYSIUM_SPAWN_TIMEOUT_MS`, `ELYSIUM_RAIN_MS=0`, `ELYSIUM_SKILLS_DIR`.
 
-Legacy Python harness: `cd agent-python && python -m pytest -q` (after a local venv).
+Legacy Python harness:
+
+```bash
+cd agent-python
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest -q
+```
+
+## Security
+
+- Prefer the mock provider for local demos.
+- Restrict bash and file tools to a sandboxed root.
+- Do not point live providers at production credentials from this repository.
 
 ## License
 
